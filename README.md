@@ -1,2 +1,2 @@
-# survival-pred-but-its-a-job-app-tracker
-Literally what it says on the tin.
+# Job Application Tracker (Name TBA)
+Created for CMPUT 401's hackathon bu the EZ Survival Prediction team.
