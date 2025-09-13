@@ -9,7 +9,7 @@ PASSWORD = os.getenv("GMAIL_PASSWORD")
 
 # Connect to Gmail IMAP
 with MailBox("imap.gmail.com").login(EMAIL, PASSWORD) as mailbox:
-    for msg in mailbox.fetch(criteria='FROM "no-reply@accounts.google.com"', limit=5):
+    for msg in mailbox.fetch(limit=5):
         print("From:", msg.from_)
         print("Subject:", msg.subject)
         print("Body:", msg.text or msg.html)
