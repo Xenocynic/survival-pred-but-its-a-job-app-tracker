@@ -90,3 +90,29 @@ Thumbs.db
 *.iml
 
 db.sqlite3
+
+
+# PyCharm project files
+.idea/
+*.iml
+
+# PyCharm caches, logs, and local history
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/dictionaries
+.idea/**/shelf
+.idea/**/usage.statistics.xml
+.idea/**/console.xml
+.idea/**/libraries
+.idea/**/uiDesigner.xml
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+.idea/**/dataSources.local
+.idea/**/sqlDataSources.xml
+.idea/**/dynamic.xml
+
+# Python virtual environments
+venv/
+env/
+*.pyc
+__pycache__/
