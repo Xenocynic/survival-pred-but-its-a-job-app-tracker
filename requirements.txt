@@ -1,3 +1,5 @@
 Django>=5.2.1
+djangorestframework~=3.16.1
+MainApp~=0.1
 python-dotenv
 imap_tools
