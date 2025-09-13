@@ -1,0 +1,9 @@
+{
+    "applications": [
+        {
+            "company": "Walmart",
+            "status": "Applied",
+            "date": "2025-09-13"
+        }
+    ]
+}
