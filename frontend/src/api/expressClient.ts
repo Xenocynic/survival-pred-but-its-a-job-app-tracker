@@ -22,7 +22,7 @@ type ApiApp = {
   id: string | number;
   company: string;
   position: string;
-  status: string | null;
+  stage: string | null;
   date_applied: string | null;
   notes?: string | null;
   // ...anything else the backend returns
@@ -33,7 +33,7 @@ function mapFromApi(a: ApiApp): Application {
     id: String(a.id),
     company: a.company,
     role: a.position,
-    stage: toStage(a.status),
+    stage: toStage(a.stage),
     createdAt: a.date_applied ?? new Date().toISOString(),
     resumeId: "r_master", // until resumes are wired to backend
     timeline: [],         // backend doesn’t provide timeline (yet)
