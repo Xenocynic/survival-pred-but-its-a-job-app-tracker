@@ -1,38 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useEffect, useState } from "react";
 
-function App() {
-  const [applications, setApplications] = useState([]);
-  const [newAppName, setNewAppName] = useState('');
+export default function App() {
+  const [apps, setApps] = useState([]);
 
   useEffect(() => {
-    axios.get('http://localhost:8000/api/applications/')
-      .then(res => setApplications(res.data))
-      .catch(err => console.error(err));
+    fetch("http://127.0.0.1:8000/api/applications/")
+      .then((res) => res.json())
+      .then((data) => setApps(data))
+      .catch((err) => console.error(err));
   }, []);
-
-  const addApplication = () => {
-    axios.post('http://localhost:8000/api/applications/', { name: newAppName })
-      .then(res => setApplications([...applications, res.data]))
-      .catch(err => console.error(err));
-  }
 
   return (
     <div>
       <h1>Applications</h1>
       <ul>
-        {applications.map(app => (
-          <li key={app.id}>{app.name}</li>
+        {apps.map(app => (
+          <li key={app.id}>
+            {app.company} - {app.position} ({app.status})
+          </li>
         ))}
       </ul>
-      <input
-        value={newAppName}
-        onChange={e => setNewAppName(e.target.value)}
-        placeholder="New Application Name"
-      />
-      <button onClick={addApplication}>Add</button>
     </div>
   );
 }
-
-export default App;
