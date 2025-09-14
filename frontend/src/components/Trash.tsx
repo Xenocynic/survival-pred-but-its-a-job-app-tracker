@@ -58,7 +58,6 @@ export function Trash({
             />
             {/* front glyph to sell the idea */}
             <div className="absolute inset-0 grid place-items-center">
-              <Trash2 size={18} className="text-white/90" />
             </div>
           </div>
 
