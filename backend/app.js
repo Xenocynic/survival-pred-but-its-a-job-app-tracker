@@ -14,6 +14,9 @@ const applicationRoutes = require("./routes/application.routes");
 // const analyticsRoutes = require("./routes/analytics.routes")
 const scrapeRoutes = require("./routes/scrape.routes.js");
 
+app.use( cors({ origin: "http://localhost:5173", credentials: true })); // CORS that allows cookies to be sent
+
+
 //-- ROUTES
 app.use("/api/applications", applicationRoutes);
 // app.use("/api/reminders", reminderRoutes);
