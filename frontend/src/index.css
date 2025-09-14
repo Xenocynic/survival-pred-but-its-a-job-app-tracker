@@ -23,3 +23,29 @@
   50%      { opacity: 0.15; }
 }
 
+/* ------------------------- RESUME PRINT VIEW DETAILS ---------------------*/
+/* Print only the .printable preview */
+@media print {
+  body {
+    background: white !important;
+  }
+  /* hide everything by default */
+  body * {
+    visibility: hidden !important;
+  }
+  /* show preview content only */
+  .printable, .printable * {
+    visibility: visible !important;
+  }
+  /* make preview take full page when printing */
+  .printable {
+    position: absolute !important;
+    inset: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    box-shadow: none !important;
+    padding: 1in !important; /* nice margins for Letter/A4 */
+  }
+}
+
+

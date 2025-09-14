@@ -52,7 +52,7 @@ export const api = {
     return read<CommEvent[]>(LS.events, []);
   },
 
-  // --- creates ---
+  // --- create application ---
   createApp(
     partial: Pick<Application, 'role' | 'company'> & { stage?: Stage }
   ): Application {
@@ -77,7 +77,7 @@ export const api = {
     return a;
   },
 
-  // --- updates ---
+  // --- move application ---
     moveApp(id: string, to: Stage): Application | null {
     const apps = api.listApps();
     const i = apps.findIndex(a => a.id === id);
@@ -98,15 +98,41 @@ export const api = {
     return app;
     },
 
-  // --- helpers that were missing ---
+  // --- update application ---
+  updateApp(id: string, patch: Partial<Pick<Application, "role" | "company">>): Application | null {
+    const apps = api.listApps();
+    const i = apps.findIndex(a => a.id === id);
+    if (i < 0) return null;
+    const next = { ...apps[i], ...patch };
+    apps[i] = next;
+    write(LS.apps, apps);
+    return next;
+  },
+
+
+  // --- obtain application ---
   getApp(id: string): Application | null {
     return api.listApps().find((a) => a.id === id) ?? null;
   },
 
+    // --- delete application ---
+
+  deleteApp(id: string): void {
+  const apps = api.listApps().filter(a => a.id !== id);
+  write(LS.apps, apps);
+  const events = api.listEvents().filter(e => e.applicationId !== id);  // remove related comms
+  write(LS.events, events);
+  },
+
+  // --------------------------------------------------------------
+  // --- RESUME OPERATIONS ---
+  // --------------------------------------------------------------
+  
   getResume(id: string): Resume | null {
     return api.listResumes().find((r) => r.id === id) ?? null;
   },
 
+  // make a resume. this is a threat.
   createResume({
     name,
     parentId,
@@ -129,6 +155,7 @@ export const api = {
     return r;
   },
 
+  // Copy a resume to be used
   cloneResume(id: string, name?: string): Resume | null {
     const src = api.getResume(id);
     if (!src) return null;
@@ -139,6 +166,7 @@ export const api = {
     });
   },
 
+  // Attach a resume to an application
   attachResume(appId: string, resumeId: string): void {
     const apps = api.listApps();
     const i = apps.findIndex((a) => a.id === appId);
@@ -147,6 +175,29 @@ export const api = {
     write(LS.apps, apps);
   },
 
+  // Update an existing resume by id
+  updateResume(resume: Resume): Resume {
+    const resumes = api.listResumes();
+    const i = resumes.findIndex(r => r.id === resume.id);
+    if (i < 0) throw new Error("resume not found");
+    resumes[i] = { ...resume, lastEdited: new Date().toISOString() };
+    write(LS.resumes, resumes);
+    return resumes[i];
+    },
+
+  // Convenience: master by id (we seeded r_master)
+  getMasterResume(): Resume {
+    const found = api.listResumes().find(r => r.id === "r_master");
+    if (found) return found;
+    // if somehow missing, recreate
+    return api.createResume({ name: "Master Resume" });
+    },
+
+
+  // --------------------------------------------------------------
+  // --- NOTIFICATION / EVENT OPERATIONS ---
+  // --------------------------------------------------------------
+  
   logEvent(e: Omit<CommEvent, 'id' | 'at'> & { at?: string }): CommEvent {
     const events = api.listEvents();
     const ev: CommEvent = {
@@ -158,15 +209,4 @@ export const api = {
     write(LS.events, events);
     return ev;
   },
-
-  // --- deletions ---
-
-  deleteApp(id: string): void {
-  const apps = api.listApps().filter(a => a.id !== id);
-  write(LS.apps, apps);
-
-  // also remove related comm events
-  const events = api.listEvents().filter(e => e.applicationId !== id);
-  write(LS.events, events);
-},
 };

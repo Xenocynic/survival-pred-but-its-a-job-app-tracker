@@ -4,17 +4,20 @@ import type { Application, Stage } from "../types";
 import { useAppStore } from "../store/useAppStore";
 import { AppCard } from "../components/AppCard";
 import { Trash } from "../components/Trash";
+import AppPanel from "../components/AppPanel"; 
 
 function StageColumn({
   stage,
   apps,
   onDropApp,
   title,
+  onOpenCard, 
 }: {
   stage: Exclude<Stage, "rejected">;
   apps: Application[];
   onDropApp: (appId: string, to: Stage) => void;
   title: string;
+  onOpenCard: (id: string) => void; 
 }) {
   return (
     <div
@@ -31,11 +34,7 @@ function StageColumn({
       </div>
       <div className="space-y-3">
         {apps.map((app) => (
-          <AppCard
-            key={app.id}
-            app={app}
-            onOpen={() => onDropApp(app.id, stage)}
-          />
+          <AppCard key={app.id} app={app} onOpen={() => onOpenCard(app.id)} />
         ))}
       </div>
     </div>
@@ -72,10 +71,14 @@ function RejectionsLane({
 }
 
 export default function BoardPage() {
-  // NOTE: remove is added here for deletion via the trash can
-  const { apps, move, createApp, remove } = useAppStore();
+  // add updateApp + getApp so the panel can save & read the selected item
+  const { apps, move, createApp, remove, updateApp, getApp } = useAppStore();
   const [role, setRole] = useState("");
   const [company, setCompany] = useState("");
+
+  // which panel is open?
+  const [openId, setOpenId] = useState<string | null>(null);
+  const opened = openId ? getApp(openId) : undefined;
 
   const grouped = useMemo(
     () => ({
@@ -100,7 +103,7 @@ export default function BoardPage() {
         <div>
           <h1 className="text-2xl font-semibold">Board</h1>
           <p className="text-sm text-gray-600">
-            Drag applications between stages. Drop into Rejections to archive.
+            Drag applications between stages. Click a card to view details. Drop into Rejections to archive.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -132,18 +135,21 @@ export default function BoardPage() {
           title="Applied"
           apps={grouped.applied}
           onDropApp={move}
+          onOpenCard={(id) => setOpenId(id)}
         />
         <StageColumn
           stage="interview"
           title="Interview"
           apps={grouped.interview}
           onDropApp={move}
+          onOpenCard={(id) => setOpenId(id)} 
         />
         <StageColumn
           stage="offer"
           title="Offer"
           apps={grouped.offer}
           onDropApp={move}
+          onOpenCard={(id) => setOpenId(id)} 
         />
       </div>
 
@@ -152,6 +158,15 @@ export default function BoardPage() {
 
       {/* Floating drag-to-DELETE bin (does not archive) */}
       <Trash onDropApp={(id) => remove(id)} label="Drop here to delete forever" />
+
+      {/* Slide-over panel */}
+      {opened && (
+        <AppPanel
+          app={opened}
+          onClose={() => setOpenId(null)}
+          onSave={(patch) => updateApp(opened.id, patch)}
+        />
+      )}
     </main>
   );
 }

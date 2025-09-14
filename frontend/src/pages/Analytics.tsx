@@ -18,7 +18,7 @@ return (
 <div key={k} className="rounded-2xl border p-4 bg-white"><div className="text-sm text-gray-500">{k}</div><div className="text-2xl font-semibold">{v}</div></div>
 ))}
 </div>
-<p className="text-sm text-gray-600">Hook up charts later with Recharts.</p>
+<p className="text-sm text-gray-600">insert graph here oh my god look stonks</p>
 </main>
 );
 }

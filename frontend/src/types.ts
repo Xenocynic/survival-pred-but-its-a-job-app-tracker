@@ -17,6 +17,7 @@ name: string;
 blocks: ResumeBlock[];
 lastEdited: string; // ISO
 parentId?: string;
+meta?: ResumeMeta;
 };
 
 // the Application object
@@ -41,3 +42,13 @@ kind: 'interview_invite' | 'rejection' | 'offer' | 'followup' | 'other';
 at: string; // ISO
 snippet: string;
 };
+
+export type ResumeMeta = {
+  fullName?: string;
+  title?: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+  links?: { label: string; url: string }[];
+};
+
