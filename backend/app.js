@@ -1,31 +1,28 @@
 const express = require("express");
 const cors = require("cors");
-
 const app = express();
+
+const PORT = 5000;
 
 app.use(express.json());
 
 //-- APIs
-// const applicationRoutes = require("./routes/application.routes.js");
-// const statusRoutes = require("./routes/status.routes.js");
-// const resumeRoutes = require("./routes/resume.routes.js");
-// const responseRoutes = require("./routes/response.routes.js");
-// const reminderRoutes = require("./routes/reminder.routes.js");
 
-app.post("/api/scrape", (req, res, next) => {
-  console.log(req.body);
-  res.json(req.body);
-});
-// app.use("api/applications", applicationRoutes);
-// app.use("api/status", applicationRoutes);
-// app.use("api/resume", applicationRoutes);
-// app.use("api/response", applicationRoutes);
-// app.use("api/reminder", applicationRoutes);
+// const applicationRoutes = require("./routes/application.routes");
+// const reminderRoutes = require("./routes/reminder.routes");
+// const responseRoutes = require("./routes/response.routes");
+// const resumeRoutes = require("./routes/resume.routes");
+// const statusRoutes = require("./routes/status.routes");
+const scrapeRoutes = require("./routes/scrape.routes.js");
 
-app.get("/", (req, res, next) => {
-  res.send("Application Tracker API is working...");
-});
+//-- ROUTES
+// app.use("/api/applications", applicationRoutes);
+// app.use("/api/reminders", reminderRoutes);
+// app.use("/api/responses", responseRoutes);
+// app.use("/api/resumes", resumeRoutes);
+// app.use("/api/status", statusRoutes);
+app.use("/api/scrape", scrapeRoutes);
 
-app.listen(5000, () => {
-  console.log("api is working.");
+app.listen(PORT, () => {
+  console.log(`server successfully listening on port: ${PORT}`);
 });
