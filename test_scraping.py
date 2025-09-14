@@ -1,5 +1,6 @@
 import os
 import json
+import requests
 from imap_tools import MailBox
 from dotenv import load_dotenv
 from bs4 import BeautifulSoup
@@ -8,6 +9,8 @@ from bs4 import BeautifulSoup
 load_dotenv("security.env")
 EMAIL = os.getenv("GMAIL_USERNAME")
 PASSWORD = os.getenv("GMAIL_PASSWORD")
+
+url = "http://localhost:5000/api/scrape"
 
 def check_email(text):
     text_lower = text.lower()
@@ -25,6 +28,7 @@ def check_email(text):
         return "Rejected"
 
 applications = []
+json_applications = {"applications": []}
 
 # Connect to Gmail IMAP
 with MailBox("imap.gmail.com").login(EMAIL, PASSWORD) as mailbox:
@@ -40,7 +44,7 @@ with MailBox("imap.gmail.com").login(EMAIL, PASSWORD) as mailbox:
         else:
             company = sender
 
-        applications.append({
+        json_applications["applications"].append({
             "company": company,
             "status": check_email(text_content),
             "date": msg.date.strftime("%Y-%m-%d")})
@@ -49,3 +53,14 @@ with MailBox("imap.gmail.com").login(EMAIL, PASSWORD) as mailbox:
 
         with open('data.txt', 'w') as f:
             json.dump({"applications": applications}, f, ensure_ascii=False, indent=4)
+
+
+# Send POST request
+try:
+    response = requests.post(url, json=json_applications)
+    response.raise_for_status()
+    print(f"Status Code: {response.status_code}")
+    print("Response JSON:")
+    print(response.json())
+except requests.exceptions.RequestException as e:
+    print(f"An error occurred: {e}")
