@@ -38,7 +38,6 @@ return (
 <section className="md:col-span-2">
 <div className="rounded-2xl border p-4 bg-white min-h-[300px]">
 <div className="text-sm text-gray-500 mb-2">Preview (editable form can go here)</div>
-<pre className="text-xs whitespace-pre-wrap">{JSON.stringify(resume.blocks, null, 2)}</pre>
 <p className="text-sm text-gray-500 mt-3">Replace with forms to edit blocks (Summary, Experience, Projects, etc.).</p>
 </div>
 </section>
