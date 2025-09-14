@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* font for title */
+.font-marker { font-family: "Recoleta"; }
+
+/* Animated gradient background for the navbar */
+.animated-gradient {
+  background: linear-gradient(270deg, #2b715f, #2d617a, #3d506b, #4e3c67);
+  background-size: 600% 600%;
+  animation: gradientShift 14s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%   { background-position:   0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position:   0% 50%; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.15; }
+}
+

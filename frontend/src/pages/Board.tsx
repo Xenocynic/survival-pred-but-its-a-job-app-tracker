@@ -58,11 +58,11 @@ function RejectionsLane({
         const id = e.dataTransfer.getData("text/app-id");
         if (id) onDropApp(id, "rejected");
       }}
-      className="mt-4 rounded-2xl border bg-rose-50 p-3"
+      className="mt-4 rounded-2xl border bg-purple-100 p-3"
       aria-label="Rejections lane"
     >
       <div className="flex items-center justify-between mb-2">
-        <div className="font-semibold text-rose-700">Rejections</div>
+        <div className="font-semibold text-purple-700">Rejections</div>
       </div>
       <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-3">
         {apps.map((app) => (
@@ -88,6 +88,7 @@ export default function BoardPage() {
     [apps]
   );
 
+  // hook up to backend for creation of new applications
   function onCreate() {
     if (!role || !company) return;
     createApp(role, company);
@@ -119,7 +120,7 @@ export default function BoardPage() {
         />
         <button
             onClick={onCreate}
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700"
+            className="relative inline-flex items-center gap-2 px-3 py-2 rounded-xl text-white font-medium animated-gradient hover:opacity-90"
         >
             <Plus size={16} />
             <span>Add</span>
