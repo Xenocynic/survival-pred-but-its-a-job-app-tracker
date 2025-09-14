@@ -1,6 +1,9 @@
-
 //Store scraped applications in a model
-exports.scrape = (req, res) => {
+exports.getApplications = (req, res) => {
   console.log(req.body);
+//prase
+
+
+
   res.json(req.body);
 };

@@ -1,12 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const applicationController = require("reminder.controller.js");
+const notificationController = require("../controllers/notification.controller");
 
-router.get("/", applicationController.getApplications);
-router.post("/", applicationController.postApplication);
-router.get("/applications/:id", applicationController.getApplication);
-router.put("/applications/:id", applicationController.updateAllApplication);
-router.patch("/applications/:id", applicationController.updateSomeApplication);
-router.delete("/applications/:id", applicationController.deleteApplication);
+router.get("/", notificationController.getNotifications);
+router.post("/", notificationController.postEvent);
 
 module.exports = router;
