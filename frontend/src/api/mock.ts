@@ -31,10 +31,10 @@ const master: Resume = { id: 'r_master', name: 'Master Resume', blocks: [{ kind:
 
 write<Resume[]>(LS.resumes, [master]);
 const apps: Application[] = [
-{ id: 'a1', role: 'Frontend Engineer', company: 'Twitch', stage: 'applied', createdAt: iso(new Date(now.getTime()-7*864e5)), resumeId: master.id, timeline: [{ stage: 'applied', at: iso(new Date(now.getTime()-7*864e5)) }] },
-{ id: 'a2', role: 'Data Analyst', company: 'Big Pharma', stage: 'interview', createdAt: iso(new Date(now.getTime()-10*864e5)), resumeId: master.id, timeline: [{ stage: 'applied', at: iso(new Date(now.getTime()-10*864e5)) }, { stage: 'interview', at: iso(new Date(now.getTime()-3*864e5)) }] },
-{ id: 'a3', role: 'ML Engineer', company: 'Big Milk', stage: 'offer', createdAt: iso(new Date(now.getTime()-20*864e5)), resumeId: master.id, timeline: [{ stage: 'applied', at: iso(new Date(now.getTime()-20*864e5)) }, { stage: 'interview', at: iso(new Date(now.getTime()-12*864e5)) }, { stage: 'offer', at: iso(new Date(now.getTime()-2*864e5)) }] },
-{ id: 'a4', role: 'Backend Developer', company: 'Hopoo Games', stage: 'rejected', createdAt: iso(new Date(now.getTime()-5*864e5)), resumeId: master.id, timeline: [{ stage: 'applied', at: iso(new Date(now.getTime()-5*864e5)) }] },
+{ id: 'a1', role: 'Frontend Engineer', company: 'Twitch', stage: 'Applied', createdAt: iso(new Date(now.getTime()-7*864e5)), resumeId: master.id, timeline: [{ stage: 'Applied', at: iso(new Date(now.getTime()-7*864e5)) }] },
+{ id: 'a2', role: 'Data Analyst', company: 'Big Pharma', stage: 'Interview', createdAt: iso(new Date(now.getTime()-10*864e5)), resumeId: master.id, timeline: [{ stage:'Applied', at: iso(new Date(now.getTime()-10*864e5)) }, { stage: 'Interview', at: iso(new Date(now.getTime()-3*864e5)) }] },
+{ id: 'a3', role: 'ML Engineer', company: 'Big Milk', stage: 'Offer', createdAt: iso(new Date(now.getTime()-20*864e5)), resumeId: master.id, timeline: [{ stage: 'Applied', at: iso(new Date(now.getTime()-20*864e5)) }, { stage: 'Interview', at: iso(new Date(now.getTime()-12*864e5)) }, { stage: 'Offer', at: iso(new Date(now.getTime()-2*864e5)) }] },
+{ id: 'a4', role: 'Backend Developer', company: 'Hopoo Games', stage: 'Rejected', createdAt: iso(new Date(now.getTime()-5*864e5)), resumeId: master.id, timeline: [{ stage: 'Applied', at: iso(new Date(now.getTime()-5*864e5)) }] },
 ];
 write<Application[]>(LS.apps, apps);
 // --- seed some communications/events so Feed has data ---
@@ -104,10 +104,10 @@ export const api = {
       id: uid('a'),
       role: partial.role,
       company: partial.company,
-      stage: partial.stage ?? 'applied',
+      stage: partial.stage ?? 'Applied',
       createdAt: new Date().toISOString(),
       resumeId: master.id,
-      timeline: [{ stage: 'applied', at: new Date().toISOString() }],
+      timeline: [{ stage: 'Applied', at: new Date().toISOString() }],
     };
 
     apps.unshift(a);
@@ -124,10 +124,10 @@ export const api = {
     const app = { ...apps[i] };
     app.stage = to;
 
-    if (to !== 'rejected') {
+    if (to !== 'Rejected') {
         app.timeline = [
         ...app.timeline,
-        { stage: to as Exclude<Stage, 'rejected'>, at: new Date().toISOString() },
+        { stage: to as Exclude<Stage, 'Rejected'>, at: new Date().toISOString() },
         ];
     }
 

@@ -5,12 +5,12 @@ const BASE = import.meta.env.VITE_API_URL;
 // ----- field mapping helpers -----
 function toStage(status: string | null | undefined): Stage {
   const s = (status ?? "").toLowerCase();
-  if (s === "applied") return "applied";
-  if (s === "interview") return "interview";
-  if (s === "offer" || s === "accepted") return "offer";
-  if (s === "rejected") return "rejected";
+  if (s === "Applied") return "Applied";
+  if (s === "Interview") return "Interview";
+  if (s === "Offer" || s === "Accepted") return "Offer";
+  if (s === "Rejected") return "Rejected";
   // default fallback
-  return "applied";
+  return "Applied";
 }
 
 function toStatus(stage: Stage): string {
@@ -67,7 +67,7 @@ export const client = {
     const payload = {
       company,
       position: role,
-      status: stage ? toStatus(stage) : "applied",
+      status: stage ? toStatus(stage) : "Applied",
       date_applied: new Date().toISOString(),
       notes: null,
     };
@@ -82,7 +82,7 @@ export const client = {
 
   // generic PATCH used for both “edit info” and “move”
   async patchApp(id: string, patch: Partial<Pick<Application,"role"|"company"|"stage">>): Promise<Application> {
-    const res = await fetch(`${BASE}/applications/${id}`, {
+    const res = await fetch(`${BASE}/applications/${id}/move`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(mapToApiPatch(patch)),

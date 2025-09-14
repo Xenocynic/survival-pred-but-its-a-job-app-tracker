@@ -53,7 +53,7 @@ function RejectionsLane({
       onDragOver={(e) => e.preventDefault()}
       onDrop={(e) => {
         const id = e.dataTransfer.getData("text/app-id");
-        if (id) onDropApp(id, "rejected");
+        if (id) onDropApp(id, "Rejected");
       }}
       className="mt-4 rounded-2xl border bg-purple-100 p-3"
       aria-label="Rejections lane"
@@ -82,10 +82,10 @@ export default function BoardPage() {
 
   const grouped = useMemo(
     () => ({
-      applied: apps.filter((a) => a.stage === "applied"),
-      interview: apps.filter((a) => a.stage === "interview"),
-      offer: apps.filter((a) => a.stage === "offer"),
-      rejected: apps.filter((a) => a.stage === "rejected"),
+      applied: apps.filter((a) => a.stage === "Applied"),
+      interview: apps.filter((a) => a.stage === "Interview"),
+      offer: apps.filter((a) => a.stage === "Offer"),
+      rejected: apps.filter((a) => a.stage === "Rejected"),
     }),
     [apps]
   );
@@ -131,21 +131,21 @@ export default function BoardPage() {
 
       <div className="grid md:grid-cols-3 gap-4 items-start">
         <StageColumn
-          stage="applied"
+          stage="Applied"
           title="Applied"
           apps={grouped.applied}
           onDropApp={move}
           onOpenCard={(id) => setOpenId(id)}
         />
         <StageColumn
-          stage="interview"
+          stage="Interview"
           title="Interview"
           apps={grouped.interview}
           onDropApp={move}
           onOpenCard={(id) => setOpenId(id)} 
         />
         <StageColumn
-          stage="offer"
+          stage="Offer"
           title="Offer"
           apps={grouped.offer}
           onDropApp={move}

@@ -1,4 +1,4 @@
-export type Stage = 'applied' | 'interview' | 'offer' | 'rejected';
+export type Stage = 'Applied' | 'Interview' | 'Offer' | 'Rejected';
 
 // we can customize all of this, this is just for the sake of having it done
 
