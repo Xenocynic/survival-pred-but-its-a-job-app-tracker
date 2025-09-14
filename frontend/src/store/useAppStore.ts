@@ -18,7 +18,12 @@
 
 import { create } from "zustand";
 import type { Application, CommEvent, Resume, Stage } from "../types";
-import { api } from "../api/mock"; // keep mock for now; swap later
+
+// Real backend for Applications:
+import { client as expressClient } from "../api/expressClient";
+
+// Keep mock for now for Resumes + Events:
+import { api as mock } from "../api/mock";
 
 type State = {
   // data
@@ -27,87 +32,129 @@ type State = {
   events: CommEvent[];
 
   // board actions
-  refresh: () => void;
-  move: (id: string, to: Stage) => void;
-  createApp: (role: string, company: string) => void;
-  remove: (id: string) => void;
+  refresh: () => Promise<void>;
+  createApp: (role: string, company: string) => Promise<void>;
+  move: (id: string, to: Stage) => Promise<void>; // status change
+  updateApp: (id: string, patch: Partial<Pick<Application, "role" | "company">>) => Promise<void>;
+  remove: (id: string) => Promise<void>;
 
   // selectors
   getApp: (id: string) => Application | undefined;
   getResumeById: (id: string) => Resume | undefined;
   getMasterResume: () => Resume;
 
-  // editor actions
-  saveResume: (resume: Resume) => void;
-  cloneAndAttachToApp: (appId: string, baseResumeId: string, name?: string) => Resume | null;
-  attachResume: (appId: string, resumeId: string) => void;
-  updateApp: (id: string, patch: Partial<Pick<Application, "role" | "company">>) => void;
+  // editor actions (still mock-backed)
+  saveResume: (resume: Resume) => Promise<void>;
+  cloneAndAttachToApp: (appId: string, baseResumeId: string, name?: string) => Promise<Resume | null>;
+  attachResume: (appId: string, resumeId: string) => Promise<void>;
 };
 
-
 export const useAppStore = create<State>((set, get) => ({
-  // --- initial state ---
-  apps: api.listApps(),
-  resumes: api.listResumes(),
-  events: api.listEvents(),
+  // Start empty; call refresh() on app mount
+  apps: [],
+  resumes: [],
+  events: [],
 
-  // --- common refresh ---
-  refresh: () =>
-    set({
-      apps: api.listApps(),
-      resumes: api.listResumes(),
-      events: api.listEvents(),
-    }),
-
-  // --- board actions ---
-  move: (id, to) => {
-    api.moveApp(id, to);
-    set({ apps: api.listApps() });
+  // -------- common refresh --------
+  async refresh() {
+    // Applications from Express, resumes + events from mock (for now)
+    const [apps, resumes, events] = await Promise.all([
+      expressClient.listApps(),
+      Promise.resolve(mock.listResumes()),
+      Promise.resolve(mock.listEvents()),
+    ]);
+    set({ apps, resumes, events });
   },
 
-  createApp: (role, company) => {
-    api.createApp({ role, company });
-    set({ apps: api.listApps() });
+  // -------- board actions --------
+  async createApp(role, company) {
+    await expressClient.createApp({ role, company });
+    const apps = await expressClient.listApps();
+    set({ apps });
   },
 
-  remove: (id) => {
-    api.deleteApp(id);
-    set({ apps: api.listApps(), events: api.listEvents() });
+  async move(id, to) {
+    // optimistic update
+    const prev = get().apps;
+    const optimistic = prev.map(a =>
+      a.id === id
+        ? {
+            ...a,
+            stage: to,
+            timeline:
+              to !== "rejected"
+                ? [...a.timeline, { stage: to as Exclude<Stage, "rejected">, at: new Date().toISOString() }]
+                : a.timeline,
+          }
+        : a
+    );
+    set({ apps: optimistic });
+
+    try {
+      await expressClient.moveApp(id, to); // backend PATCH /applications/:id with {status}
+      const apps = await expressClient.listApps();
+      set({ apps });
+    } catch (e) {
+      console.error("Move failed:", e);
+      set({ apps: prev }); // rollback
+    }
   },
 
-  // --- selectors (read from in-memory state when possible) ---
-  updateApp: (id, patch) => { api.updateApp(id, patch); set({ apps: api.listApps() }); },
-  getApp: (id) => api.listApps().find(a => a.id === id),
-  getResumeById: (id) => get().resumes.find((r) => r.id === id),
+  async updateApp(id, patch) {
+    // optimistic
+    const prev = get().apps;
+    set({ apps: prev.map(a => (a.id === id ? { ...a, ...patch } : a)) });
+
+    try {
+      await expressClient.patchApp(id, patch); // maps role/company to position/company
+      const apps = await expressClient.listApps();
+      set({ apps });
+    } catch (e) {
+      console.error("Update failed:", e);
+      set({ apps: prev });
+    }
+  },
+
+  async remove(id) {
+    const prev = get().apps;
+    set({ apps: prev.filter(a => a.id !== id) }); // optimistic
+    try {
+      await expressClient.deleteApp(id);
+      const [apps, events] = await Promise.all([
+        expressClient.listApps(),
+        Promise.resolve(mock.listEvents()), // still mock events
+      ]);
+      set({ apps, events });
+    } catch (e) {
+      console.error("Delete failed:", e);
+      set({ apps: prev });
+    }
+  },
+
+  // -------- selectors (use in-memory state) --------
+  getApp: (id) => get().apps.find(a => a.id === id),
+  getResumeById: (id) => get().resumes.find(r => r.id === id),
   getMasterResume: () => {
-    // prefer seeded id; fall back to API helper
-    const local = get().resumes.find((r) => r.id === "r_master");
-    return local ?? api.getMasterResume();
+    const local = get().resumes.find(r => r.id === "r_master");
+    return local ?? mock.getMasterResume();
   },
 
-  // --- editor actions ---
-  saveResume: (resume) => {
-    api.updateResume(resume);
-    set({ resumes: api.listResumes() });
+  // -------- editor actions (mock for now) --------
+  async saveResume(resume) {
+    mock.updateResume(resume);
+    set({ resumes: mock.listResumes() });
   },
 
-  cloneAndAttachToApp: (appId, baseResumeId, name) => {
-    const clone = api.cloneResume(baseResumeId, name);
+  async cloneAndAttachToApp(appId, baseResumeId, name) {
+    const clone = mock.cloneResume(baseResumeId, name);
     if (!clone) return null;
-
-    // Optional: if you want to copy current edited blocks, do it in the page before calling saveResume
-    api.attachResume(appId, clone.id);
-
-    set({
-      apps: api.listApps(),
-      resumes: api.listResumes(),
-    });
-
+    mock.attachResume(appId, clone.id);
+    set({ apps: mock.listApps(), resumes: mock.listResumes() });
     return clone;
   },
 
-  attachResume: (appId, resumeId) => {
-    api.attachResume(appId, resumeId);
-    set({ apps: api.listApps() });
+  async attachResume(appId, resumeId) {
+    mock.attachResume(appId, resumeId);
+    set({ apps: mock.listApps() });
   },
 }));
