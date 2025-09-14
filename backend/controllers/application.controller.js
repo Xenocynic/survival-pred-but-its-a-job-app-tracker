@@ -101,9 +101,9 @@ exports.updateApplication = async (req, res) => {
 exports.moveApplication = async (req, res) => {
   try {
     const { id } = req.params;
-    const { move } = req.query;
+    const { to } = req.body;
 
-    const {data, error} = await supabase.from("applications").update(move).eq("id", id).select();
+    const {data, error} = await supabase.from("applications").update(to).eq("id", id).select();
 
     if (error) throw err;
 
