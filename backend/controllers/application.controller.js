@@ -83,7 +83,7 @@ exports.updateApplication = async (req, res) => {
       .eq("id", id) // match by id
       .select();
 
-    if (error) throw err;
+    if (error) throw error;
     res.json({
       success: true,
       message: "Application updated successfully",
@@ -101,26 +101,29 @@ exports.updateApplication = async (req, res) => {
 exports.moveApplication = async (req, res) => {
   try {
     const { id } = req.params;
-    const { to } = req.body;
+    const { stage } = req.body;
+    console.log(stage);
+    const status = stage;
 
-    const {data, error} = await supabase.from("applications").update(to).eq("id", id).select();
+    const { data, error } = await supabase
+      .from("applications")
+      .update(status)
+      .eq("id", id)
+      .select();
 
-    if (error) throw err;
+    if (error) throw error;
 
     res.json({
       success: true,
       message: "Application status updated successfully",
       application: data[0],
     });
-
   } catch (err) {
     console.error(err);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Server Error: Failed to update status of application",
-      });
+    res.status(500).json({
+      success: false,
+      message: "Server Error: Failed to update status of application",
+    });
   }
 };
 
