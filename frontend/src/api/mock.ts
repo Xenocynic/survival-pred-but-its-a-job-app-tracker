@@ -24,10 +24,11 @@ function uid(prefix = 'id'): string { return `${prefix}_${Math.random().toString
 // Seed once
 (function seed() {
 const seeded = read<Application[]>(LS.apps, []);
-if (seeded.length) return;
+
 const now = new Date();
 const iso = (d: Date) => d.toISOString();
 const master: Resume = { id: 'r_master', name: 'Master Resume', blocks: [{ kind: 'summary', text: 'Driven developer…' }], lastEdited: iso(now) };
+
 write<Resume[]>(LS.resumes, [master]);
 const apps: Application[] = [
 { id: 'a1', role: 'Frontend Engineer', company: 'Twitch', stage: 'applied', createdAt: iso(new Date(now.getTime()-7*864e5)), resumeId: master.id, timeline: [{ stage: 'applied', at: iso(new Date(now.getTime()-7*864e5)) }] },
@@ -36,7 +37,44 @@ const apps: Application[] = [
 { id: 'a4', role: 'Backend Developer', company: 'Hopoo Games', stage: 'rejected', createdAt: iso(new Date(now.getTime()-5*864e5)), resumeId: master.id, timeline: [{ stage: 'applied', at: iso(new Date(now.getTime()-5*864e5)) }] },
 ];
 write<Application[]>(LS.apps, apps);
-write<CommEvent[]>(LS.events, []);
+// --- seed some communications/events so Feed has data ---
+const events: CommEvent[] = [
+  {
+    id: uid("ev"),
+    applicationId: apps[0]?.id,  // Frontend Engineer @ Twitch
+    channel: "email",
+    kind: "interview_invite",
+    at: iso(new Date(now.getTime() - 2 * 864e5)), // 2 days ago
+    snippet: "Hi! We'd like to schedule a first-round interview for next week.",
+  },
+  {
+    id: uid("ev"),
+    applicationId: apps[1]?.id,  // Data Analyst @ Big Pharma
+    channel: "email",
+    kind: "followup",
+    at: iso(new Date(now.getTime() - 1 * 864e5)), // 1 day ago
+    snippet: "Thanks for your application — we’re reviewing your profile.",
+  },
+  {
+    id: uid("ev"),
+    applicationId: apps[2]?.id,  // ML Engineer @ Big Milk
+    channel: "portal",
+    kind: "offer",
+    at: iso(new Date(now.getTime() - 6 * 3600e3)), // 6 hours ago
+    snippet: "Congratulations! We’re excited to extend you an offer.",
+  },
+  {
+    id: uid("ev"),
+    applicationId: apps[3]?.id,  // Backend Developer @ Hopoo Games
+    channel: "email",
+    kind: "rejection",
+    at: iso(new Date(now.getTime() - 3 * 3600e3)), // 3 hours ago
+    snippet: "We appreciate your interest, but we won't be moving forward.",
+  },
+];
+
+write<CommEvent[]>(LS.events, events);
+if (seeded.length) return;
 })();
 
 
@@ -209,4 +247,6 @@ export const api = {
     write(LS.events, events);
     return ev;
   },
+
+  
 };
