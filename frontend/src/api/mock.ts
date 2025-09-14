@@ -158,4 +158,15 @@ export const api = {
     write(LS.events, events);
     return ev;
   },
+
+  // --- deletions ---
+
+  deleteApp(id: string): void {
+  const apps = api.listApps().filter(a => a.id !== id);
+  write(LS.apps, apps);
+
+  // also remove related comm events
+  const events = api.listEvents().filter(e => e.applicationId !== id);
+  write(LS.events, events);
+},
 };

@@ -3,6 +3,7 @@ import { Plus } from "lucide-react";
 import type { Application, Stage } from "../types";
 import { useAppStore } from "../store/useAppStore";
 import { AppCard } from "../components/AppCard";
+import { Trash } from "../components/Trash";
 
 function StageColumn({
   stage,
@@ -27,9 +28,6 @@ function StageColumn({
     >
       <div className="flex items-center justify-between mb-2">
         <div className="font-semibold">{title}</div>
-        <button className="inline-flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900">
-          <Plus size={16} /> Add
-        </button>
       </div>
       <div className="space-y-3">
         {apps.map((app) => (
@@ -74,7 +72,8 @@ function RejectionsLane({
 }
 
 export default function BoardPage() {
-  const { apps, move, createApp } = useAppStore();
+  // NOTE: remove is added here for deletion via the trash can
+  const { apps, move, createApp, remove } = useAppStore();
   const [role, setRole] = useState("");
   const [company, setCompany] = useState("");
 
@@ -88,7 +87,6 @@ export default function BoardPage() {
     [apps]
   );
 
-  // hook up to backend for creation of new applications
   function onCreate() {
     if (!role || !company) return;
     createApp(role, company);
@@ -106,27 +104,25 @@ export default function BoardPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-        <input
+          <input
             value={role}
             onChange={(e) => setRole(e.target.value)}
             placeholder="Role"
             className="border rounded-xl px-3 py-2 text-sm"
-        />
-        <input
+          />
+          <input
             value={company}
             onChange={(e) => setCompany(e.target.value)}
             placeholder="Company"
             className="border rounded-xl px-3 py-2 text-sm"
-        />
-        <button
+          />
+          <button
             onClick={onCreate}
             className="relative inline-flex items-center gap-2 px-3 py-2 rounded-xl text-white font-medium animated-gradient hover:opacity-90"
-        >
+          >
             <Plus size={16} />
             <span>Add</span>
-        </button>
-
-
+          </button>
         </div>
       </div>
 
@@ -151,7 +147,11 @@ export default function BoardPage() {
         />
       </div>
 
+      {/* Keep archive lane */}
       <RejectionsLane apps={grouped.rejected} onDropApp={move} />
+
+      {/* Floating drag-to-DELETE bin (does not archive) */}
+      <Trash onDropApp={(id) => remove(id)} label="Drop here to delete forever" />
     </main>
   );
 }
